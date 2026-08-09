@@ -1,18 +1,23 @@
-import mongoose from 'mongoose';
-
 import express from 'express';
+import mongoose from 'mongoose';
+import config from './config.js';
 import { configureRouter } from './api/router.js';
 import './dependencies.js';
 
-const app = express();
-const PORT = 3000;
-//Leer los datos enviados en formato json
-app.use(express.json());
+try {
+    const app = express();
 
-configureRouter(app);
+    app.use(express.json());
 
-await mongoose.connect('mongodb://localhost:27017/Trabajo_aplicativ')
-console.log('Conectado a MongoDB')
-app.listen(PORT, () => {
-    console.log(`Server escuchando e http://localhost:${PORT}`);
-});
+    configureRouter(app);
+
+    await mongoose.connect(config.dbConnection);
+    console.log('Conectado a MongoDB');
+
+    app.listen(config.port, () => {
+        console.log(`Server escuchando en http://localhost:${config.port}`);
+    });
+} catch (error) {
+    console.error('Error initianing the server', error);
+}
+

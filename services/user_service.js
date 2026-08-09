@@ -1,8 +1,8 @@
 import { getDependency } from '../dependency.js';
 
 export class UserService {
-    constructor() {
-        this.userRepo = getDependency('serRepo');
+    constructor(userRepo) {
+        this.userRepo = userRepo;
     }
     async getList() {
         return await this.userRepo.find();
