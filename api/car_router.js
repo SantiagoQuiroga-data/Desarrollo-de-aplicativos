@@ -1,57 +1,51 @@
 import { Router } from 'express';
 import { getDependency } from '../dependency.js';
-import { ValidationError, NotFoundError } from '../errors/app_errors.js';
 
 export function configureCarRouter(parentRouter) {
 const router = Router();
 const carService = getDependency('carService');
 
-router.get('/', async(req, res) => {
+router.get('/', async(req, res, next) => {
     try {
         const cars = await carService.getCars();
         res.json(cars);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        next(error);
     }
 });
-router. get('/:id', async (req, res) => {
+router. get('/:id', async (req, res, next) => {
     try {
         const car = await carService.getCarById(req.params.id);
         res.json(car);
     } catch {
-        if (error instanceof NotFoundError) {
-            res.status(404).json({ error: error.message });
-        } else {
-            res.status(500).json({ error: 'Error interno del servidor' });
-        }
+       next(error);
     }
 });
 
-router.post('/', async (req, res) => {
+router.post('/', async (req, res, next) => {
     try {
         const newCar = await carService.createCar(req.body);
         res.status(201).json(newCar);
     } catch(error) {
-        if (error instanceof ValidationError) {
-        res.status(400).json({ error: error.message });
-        } else {
-            res.status(500).json({ error: error.message });
-        }
-        
+        next(error);
     }
 });
 
-router.delete('/:id', async(req,res) => {
+router.delete('/:id', async(req,res, next) => {
+    try {
+        const updatedCar = await carService.updateCar(req.params.id, req.body);
+        res.json(updatedCar);
+    } catch (error) {
+       next(error);
+    }
+});
+
+router.delete('/:id', async(req, res, next) => {
     try {
         await carService.deleteCar(req.params.id);
-        res.json( { message: 'Vehiculo eliminado con éxito'});
+        res.json({ message: 'Vehículo eliminado con éxito'});
     } catch (error) {
-        if (error instanceof NotFoundError) {
-            res.status(404).json({ error: error.message });
-        } else {
-            res.status(500).json({ error: error.message });
-        } 
-        
+        next(error);
     }
 });
 
