@@ -1,4 +1,4 @@
-import { ValidationError, NotFoundError } from './errors/app_errors.js';
+import { ValidationError, NotFoundError } from '../errors/app_errors.js';
 
 export class CarService {
     constructor(carRepo) {
@@ -6,6 +6,7 @@ export class CarService {
     }
 
     async getCars() {
+        console.log('CAR REPO', this.carRepo);
         return await this.carRepo.find();
     }
 
@@ -18,7 +19,7 @@ export class CarService {
     }
 
     async createCar(carData) {
-        if (!carData.brand || carData.model) {
+        if (!carData.brand || !carData.model) {
             throw new ValidationError('La marca y el modelo son obligatorios');
         }
         if (carData.price <= 0) {
@@ -31,16 +32,16 @@ export class CarService {
         if (carData.price !== undefined && carData.price <= 0) {
             throw new ValidationError('El precio debe ser un valor positivo');
         }
-        const updatedCar = await this.carRepo.finByIdAndDelete(id, carData);
+        const updatedCar = await this.carRepo.findByIdAndUpdate(id, carData, { new: true });
 
-        if(!updatedCar){
+        if (!updatedCar) {
             throw new NotFoundError('No se encontró el vehiculo a actualizar');
         }
         return updatedCar;
     }
 
     async deleteCar(id) {
-        const deletedCar = await this.carRepo.finByIdAndDelete(id);
+        const deletedCar = await this.carRepo.findByIdAndDelete(id);
         if (!deletedCar) {
             throw new NotFoundError('No se encontró el vehiculo a eliminar');
         }

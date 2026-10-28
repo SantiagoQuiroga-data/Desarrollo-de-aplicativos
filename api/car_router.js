@@ -1,54 +1,73 @@
 import { Router } from 'express';
 import { getDependency } from '../dependency.js';
-
+import checkRoleMiddleware from '../middlewares/check_role_middleware.js';
+console.log('CAR ROUTER.JS CARGADO');
 export function configureCarRouter(parentRouter) {
-const router = Router();
-const carService = getDependency('carService');
+    console.log('CONFIGURANDO CAR ROUTER');
+    const router = Router();
+    const carService = getDependency('carService');
 
-router.get('/', async(req, res, next) => {
-    try {
-        const cars = await carService.getCars();
-        res.json(cars);
-    } catch (error) {
-        next(error);
-    }
-});
-router. get('/:id', async (req, res, next) => {
-    try {
-        const car = await carService.getCarById(req.params.id);
-        res.json(car);
-    } catch {
-       next(error);
-    }
-});
 
-router.post('/', async (req, res, next) => {
-    try {
-        const newCar = await carService.createCar(req.body);
-        res.status(201).json(newCar);
-    } catch(error) {
-        next(error);
-    }
-});
+    router.get(
+        '/',
+        checkRoleMiddleware(['admin', 'user']),
+        async (req, res, next) => {
+            try {
+                res.json(await carService.getCars());
+            } catch (error) {
+                next(error);
+            }
+        }
+    );
 
-router.delete('/:id', async(req,res, next) => {
-    try {
-        const updatedCar = await carService.updateCar(req.params.id, req.body);
-        res.json(updatedCar);
-    } catch (error) {
-       next(error);
-    }
-});
+    // POST /cars
+    router.post(
+        '/',
+        checkRoleMiddleware(['user']),
+        async (req, res, next) => {
+            try {
+                res.status(201).json(await carService.createCar(req.body));
+            } catch (error) {
+                next(error);
+            }
+        }
+    );
+    console.log('REGISTRANDO PATCH DE CARS');
+    router.patch(
+        '/test',
+        async (req, res) => {
+            console.log('patch funcionando');
+            res.json({ message: 'PATCH FUNCIONA' });
+        }
+    );
+    router.patch(
+        '/:id',
+        checkRoleMiddleware(['user']),
+        async (req, res, next) => {
+            try {
+                console.log('ENTRO AL PATCH');
+                const { id } = req.params;
+                const updateData = req.body;
+                const updatedCar = await carService.updateCar(id, updateData);
+                res.json(updatedCar);
+            } catch (error) {
+                next(error);
+            }
+        });
 
-router.delete('/:id', async(req, res, next) => {
-    try {
-        await carService.deleteCar(req.params.id);
-        res.json({ message: 'Vehículo eliminado con éxito'});
-    } catch (error) {
-        next(error);
-    }
-});
 
-parentRouter.use('/cars', rotuer);
+    router.delete(
+        '/:id',
+        checkRoleMiddleware(['user']),
+        async (req, res, next) => {
+            try {
+                await carService.deleteCar(req.params.id);
+                res.json({ message: 'Vehículo eliminado con éxito' });
+            } catch (error) {
+                next(error);
+            }
+        }
+    );
 
+    parentRouter.use('/cars', router);
 }

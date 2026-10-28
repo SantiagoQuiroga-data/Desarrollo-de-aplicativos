@@ -1,4 +1,4 @@
-import { ValidationError, NotFoundError } from '../errors/app_errors';
+import { ValidationError, NotFoundError } from '../errors/app_errors.js';
 
 export default async function errorMiddleware(err, req, res, next) {
     if (err instanceof ValidationError) {
@@ -9,5 +9,5 @@ export default async function errorMiddleware(err, req, res, next) {
         return res.status(404).json({ error: err.message });
     }
 
-    res.status(500).json({ error: err.message || 'Error interno del servidor'});
+    res.json({ error: err.message });
 }

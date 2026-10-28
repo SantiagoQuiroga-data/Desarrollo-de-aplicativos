@@ -1,34 +1,30 @@
 import { getDependency } from '../dependency.js';
+import checkRoleMiddleware from '../middlewares/check_role_middleware.js';
 
 export function configureUserRouter(router) {
     const userService = getDependency('userService');
 
     // GET(obtener usuario por nombre)
 
-    router.get('/users', async (req, res) => {
+    router.get('/users', checkRoleMiddleware(['admin']), async (req, res) => {
         const users = await userService.getList();
         res.json(users.map(user => ({
             username: user.username,
             email: user.email,
             role: user.role,
         })));
-
     });
 
     //Post(Crear nuevo usuario)
-    router.post('/users', async (req, res) => {
-        try{ 
+    router.post('/users', checkRoleMiddleware(['admin']), async (req, res) => {
         const user = req.body;
         const newUser = await userService.add(user);
-        res.json(201).json(newUser);
-        } catch(erro) {
-            res.status(400).json({ error: error.message });
-        }
+        res.json(newUser);
     });
     // Patch(modificar usuario)
 
     router.patch('/users/:username', async (req, res) => {
-        const { username } = req.parms;
+        const { username } = req.params;
         const updateData = req.body;
         const updatedUser = await userService.update(username, updateData);
         res.json(updatedUser);

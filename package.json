@@ -1,9 +1,10 @@
 {
   "name": "trabajo_aplicativo",
   "version": "1.0.0",
-  "type": "module" ,
+  "type": "module",
   "main": "index.js",
   "scripts": {
+    "dev": "node --watch server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -11,6 +12,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "express": "^5.2.1"
   }
 }

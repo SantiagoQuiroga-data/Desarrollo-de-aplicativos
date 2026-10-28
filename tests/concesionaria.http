@@ -1,0 +1,100 @@
+@baseUrl = http://localhost:3000/api
+
+### ========================================================
+### COLOCAR LOS TOKENS AQUÍ LUEGO DE HACER LOGIN
+### ========================================================
+@tokenAdmin = 
+@tokenUser = "0de3045d03edfef5774092de8708191a575476853e529e72ffc3fcfdb1bc9d3a
+
+### 1. Lista de usuarios
+GET {{baseUrl}}/users
+Authorization: Bearer {{tokenAdmin}}
+Content-Type: application/json
+
+### 1. Registrar un usuario Administrador
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+    "username": "admin3",
+    "password": "123",
+    "displayName": "Administrador",
+    "email": "admin@concesionaria.com",
+    "role": "admin"
+}
+
+### 2. Registrar un usuario Cliente Normal
+POST {{baseUrl}}/users
+Authorization: Bearer {{tokenAdmin}}
+Content-Type: application/json
+
+{
+    "username": "juan",
+    "password": "123",
+    "displayName": "Santiago",
+    "email": "san@gmail.com",
+    "role": "user"
+}
+
+### 3. Login como Admin
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+    "username": "admin",
+    "password": "1234"
+}
+
+### 4. Login como Usuario Normal
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+    "username": "juan",
+    "password": "123"
+}
+
+### --------------------------------------------------------
+### PRUEBAS DE RUTAS Y AUTORIZACIÓN (CARS)
+### --------------------------------------------------------
+
+### 5. Obtener todos los vehículos (Cualquier usuario autenticado)
+GET {{baseUrl}}/cars
+Authorization: Bearer {{tokenAdmin}}
+
+### 6. Crear un vehículo como ADMIN 
+POST {{baseUrl}}/cars
+Authorization: Bearer {{tokenAdmin}}
+Content-Type: application/json
+
+{
+  "brand": "Ford",
+  "model": "Territory",
+  "year": 2024,
+  "price": 25000000,
+  "mileage": 10000,
+  "status": "available"
+}
+### 7. Intentar crear un vehículo como USER 
+POST {{baseUrl}}/cars
+Authorization: Bearer {{tokenUser}}
+Content-Type: application/json
+
+{
+    "brand": "Ford",
+    "model": "Territory",
+    "year": 2025,
+    "price": 30000000
+}
+
+### PATCH - Modificar vehículo
+PATCH http://localhost:3000/api/cars/6a863cc0d488dfa9c3977cca
+Authorization: Bearer d899568a85a8686b755e9cad4e4874267146771c02f50eb8ee6273c52210be28
+Content-Type: application/json
+
+{
+    "price": 30000000
+}
+### DELETE - Eliminar vehículo
+DELETE http://localhost:3000/api/cars/6a863cc0d488dfa9c3977cca
+Authorization: Bearer d899568a85a8686b755e9cad4e4874267146771c02f50eb8ee6273c52210be28
